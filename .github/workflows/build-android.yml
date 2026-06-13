@@ -17,12 +17,17 @@ jobs:
       with:
         node-version: 18
 
-    # در این بخش دستور ساخت بدون آپشن مزاحم اصلاح شد
+    # این بخش فایل‌های بازی را سازماندهی می‌کند تا ارور webDir کاملاً برطرف شود
+    - name: Prepare Web Assets Folder
+      run: |
+        mkdir www
+        cp index.html style.css game.js storage.js www/
+
     - name: Install Capacitor & Dependencies
       run: |
         npm init -y
         npm install @capacitor/core @capacitor/cli @capacitor/android
-        npx cap init "CarGame" "com.yourname.cargame" --web-dir=.
+        npx cap init "CarGame" "com.yourname.cargame" --web-dir=www
 
     - name: Add Android Platform
       run: npx cap add android
