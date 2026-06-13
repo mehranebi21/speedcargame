@@ -40,31 +40,37 @@ jobs:
     - name: Add Android Platform
       run: npx cap add android
 
+    # 🎯 بمب اتم بیلد: ساخت یک اسکریپت پیش‌فرض برای گریدل در بالاترین سطح رانر
+    - name: Setup Global Gradle Override
+      run: |
+        mkdir -p $HOME/.gradle
+        echo "org.gradle.dependency.verification=off" >> $HOME/.gradle/gradle.properties
+        echo "org.gradle.daemon=false" >> $HOME/.gradle/gradle.properties
+        
+        cat << 'EOF' > $HOME/.gradle/init.gradle
+        allprojects {
+            ext {
+                // اجبار کل سیستم به استفاده از نسخه امن و بدون باگ شبکه
+                forcedBouncyCastleVersion = "1.74"
+            }
+            configurations.all {
+                resolutionStrategy {
+                    eachDependency { DependencyResolveDetails details ->
+                        if (details.requested.group == 'org.bouncycastle' && details.requested.name.contains('bcprov')) {
+                            details.useVersion forcedBouncyCastleVersion
+                            details.because "Force stable version globally before capacitor alters build files"
+                        }
+                    }
+                }
+            }
+        }
+        EOF
+
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
         distribution: 'zulu'
         java-version: '17'
-
-    # 🎯 ترفند آفلاین: تزریق فایل آپلود شده‌ی تو به عنوان بالاترین اولویت گریدل
-    - name: Inject Offline Valid Jar
-      run: |
-        mkdir -p android/app/libs
-        if [ -f "bcprov-jdk18on-1.74.jar" ]; then
-          cp bcprov-jdk18on-1.74.jar android/app/libs/
-          echo "allprojects {
-              buildscript {
-                  dependencies {
-                      classpath files('app/libs/bcprov-jdk18on-1.74.jar')
-                  }
-              }
-              configurations.all {
-                  resolutionStrategy.force files('app/libs/bcprov-jdk18on-1.74.jar')
-              }
-          }" >> android/build.gradle
-        fi
-        echo "org.gradle.dependency.verification=off" >> android/gradle.properties
-        echo "org.gradle.daemon=false" >> android/gradle.properties
 
     - name: Sync Web assets to Android
       run: npx cap sync
