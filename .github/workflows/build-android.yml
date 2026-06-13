@@ -15,7 +15,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: 18
+        node-version: 20 # ارتقا به نسخه ۲۰ برای هماهنگی کامل با کپسیتور جدید
 
     - name: Prepare Web Assets Folder
       run: |
@@ -29,10 +29,11 @@ jobs:
           cp -r assets www/
         fi
 
-    - name: Install Capacitor & Dependencies
+    # 🎯 مهاجرت به نسخه ۶ کپسیتور برای حذف کامل پکیج دردسرآفرین bcprov
+    - name: Install Latest Capacitor & Dependencies
       run: |
         npm init -y
-        npm install @capacitor/core @capacitor/cli @capacitor/android
+        npm install @capacitor/core@latest @capacitor/cli@latest @capacitor/android@latest
 
     - name: Initialize Capacitor
       run: npx cap init "CarGame" "com.yourname.cargame" --web-dir=www
@@ -46,16 +47,6 @@ jobs:
         distribution: 'zulu'
         java-version: '17'
 
-    # 🎯 تیر خلاص: دانلود فایل سالم و تزریق آن مستقیم به حافظه جاوا برای دور زدن دانلودهای گریدل
-    - name: Inject Valid Security Jar into Java Cache
-      run: |
-        mkdir -p $HOME/.gradle/caches/modules-2/files-2.1/org.bouncycastle/bcprov-jdk18on/1.79
-        curl -L -o bcprov.jar https://repo1.maven.org/maven2/org/bouncycastle/bcprov-jdk18on/1.79/bcprov-jdk18on-1.79.jar
-        # پیدا کردن مسیر دقیق گریدل و کپی کردن فایل برای مسدود کردن دانلودهای مخرب بعدی
-        find $HOME/.gradle/caches/modules-2/files-2.1/org.bouncycastle/bcprov-jdk18on/1.79/ -type d -exec cp bcprov.jar {}/bcprov-jdk18on-1.79.jar \; 2>/dev/null || true
-        echo "org.gradle.dependency.verification=off" >> android/gradle.properties
-        echo "org.gradle.daemon=false" >> android/gradle.properties
-
     - name: Sync Web assets to Android
       run: npx cap sync
 
@@ -63,7 +54,7 @@ jobs:
       run: |
         cd android
         ./gradlew clean
-        ./gradlew assembleDebug --no-build-cache --no-daemon
+        ./gradlew assembleDebug --no-daemon
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
