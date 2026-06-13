@@ -20,18 +20,13 @@ jobs:
     - name: Prepare Web Assets Folder
       run: |
         mkdir -p www
-        find . -name "index.html" -exec cp {} www/ \;
-        find . -name "style.css" -exec cp {} www/ \;
-        find . -name "game.js" -exec cp {} www/ \;
-        find . -name "storage.js" -exec cp {} www/ \;
+        find . -maxdepth 1 -name "index.html" -exec cp {} www/ \;
+        find . -maxdepth 1 -name "style.css" -exec cp {} www/ \;
+        find . -maxdepth 1 -name "game.js" -exec cp {} www/ \;
+        find . -maxdepth 1 -name "storage.js" -exec cp {} www/ \;
         
         if [ -d "assets" ]; then
           cp -r assets www/
-        fi
-        
-        if [ ! -f www/index.html ]; then
-          echo "Error: index.html not found!"
-          exit 1
         fi
 
     - name: Install Capacitor & Dependencies
@@ -45,16 +40,16 @@ jobs:
     - name: Add Android Platform
       run: npx cap add android
 
+    # گام کلیدی: کپی کردن فایل تنظیمات رفع باگ به پوشه اندروید پروژه
+    - name: Apply Gradle Fix
+      run: |
+        cp gradle.properties android/
+
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
         distribution: 'zulu'
         java-version: '17'
-
-    # پچ طلایی: تزریق دستور اصلاح نسخه پکیج bcprov به فایل build.gradle پروژه اندروید
-    - name: Patch Gradle bcprov Dependency Bug
-      run: |
-        sed -i '/dependencies {/a \    constraints {\n        implementation("org.bouncycastle:bcprov-jdk18on:1.74") {\n            because("Fix build failure due to broken 1.79 jar caching")\n        }\n    }' android/build.gradle
 
     - name: Sync Web assets to Android
       run: npx cap sync
@@ -63,7 +58,7 @@ jobs:
       run: |
         cd android
         ./gradlew clean
-        ./gradlew assembleDebug --no-build-cache --no-daemon
+        ./gradlew assembleDebug --no-build-cache
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
