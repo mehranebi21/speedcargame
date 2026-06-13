@@ -40,10 +40,14 @@ jobs:
     - name: Add Android Platform
       run: npx cap add android
 
-    # 🎯 تنظیم کلیدی جدید: حل مشکل پکیج بدون خراب کردن سینتکس
+    # 🎯 اصلاح ساختار تزریق کد به فایل build.gradle با فرمت استاندارد allprojects
     - name: Force Clean Build Strategy
       run: |
-        echo "configurations.all { resolutionStrategy.force 'org.bouncycastle:bcprov-jdk18on:1.74' }" >> android/build.gradle
+        echo "allprojects {
+            configurations.all {
+                resolutionStrategy.force 'org.bouncycastle:bcprov-jdk18on:1.74'
+            }
+        }" >> android/build.gradle
         echo "org.gradle.dependency.verification=off" >> android/gradle.properties
 
     - name: Set up JDK 17
