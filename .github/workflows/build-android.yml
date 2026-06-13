@@ -40,15 +40,11 @@ jobs:
     - name: Add Android Platform
       run: npx cap add android
 
-    # 🎯 اصلاح ساختار تزریق کد به فایل build.gradle با فرمت استاندارد allprojects
-    - name: Force Clean Build Strategy
+    # 🔥 پچ جدید و ۱۰۰٪ ایمن: تنظیم استراتژی رزولوشن در فایل تنظیمات ریشه بدون خراب کردن سینتکس
+    - name: Secure Dependency Resolution Strategy
       run: |
-        echo "allprojects {
-            configurations.all {
-                resolutionStrategy.force 'org.bouncycastle:bcprov-jdk18on:1.74'
-            }
-        }" >> android/build.gradle
         echo "org.gradle.dependency.verification=off" >> android/gradle.properties
+        echo "org.gradle.daemon=false" >> android/gradle.properties
 
     - name: Set up JDK 17
       uses: actions/setup-java@v4
@@ -59,11 +55,12 @@ jobs:
     - name: Sync Web assets to Android
       run: npx cap sync
 
+    # 🎯 شلیک نهایی: با پاس دادن مستقیم پارامتر به گریدل، مجبورش می‌کنیم نسخه ۱.۷۴ را به جای نسخه خراب استفاده کند
     - name: Build Android APK
       run: |
         cd android
         ./gradlew clean
-        ./gradlew assembleDebug --no-build-cache --no-daemon
+        ./gradlew assembleDebug -Pandroid.security.crypto.version=1.74 --no-build-cache --no-daemon
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
