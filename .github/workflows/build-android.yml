@@ -6,8 +6,7 @@ on:
 
 jobs:
   build:
-    # تغییر اساسی: سوئیچ به ویندوز برای رها شدن از باگ رانر لینوکس
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout Source Code
@@ -19,7 +18,6 @@ jobs:
         node-version: 18
 
     - name: Prepare Web Assets Folder
-      shell: bash
       run: |
         mkdir -p www
         find . -name "index.html" -exec cp {} www/ \;
@@ -53,15 +51,19 @@ jobs:
         distribution: 'zulu'
         java-version: '17'
 
+    # پچ طلایی: تزریق دستور اصلاح نسخه پکیج bcprov به فایل build.gradle پروژه اندروید
+    - name: Patch Gradle bcprov Dependency Bug
+      run: |
+        sed -i '/dependencies {/a \    constraints {\n        implementation("org.bouncycastle:bcprov-jdk18on:1.74") {\n            because("Fix build failure due to broken 1.79 jar caching")\n        }\n    }' android/build.gradle
+
     - name: Sync Web assets to Android
       run: npx cap sync
 
-    # کامپایل نهایی روی ویندوز (فرمان باتش گریدل)
     - name: Build Android APK
       run: |
         cd android
         ./gradlew clean
-        ./gradlew assembleDebug --no-daemon
+        ./gradlew assembleDebug --no-build-cache --no-daemon
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
