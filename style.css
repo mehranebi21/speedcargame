@@ -1,0 +1,213 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+body {
+    background-color: #1a1a1a;
+    font-family: sans-serif;
+    overflow: hidden;
+}
+
+#game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    max-width: 480px;
+    margin: 0 auto;
+    background: #333;
+    overflow: hidden;
+    box-shadow: 0 0 30px rgba(0,0,0,0.8);
+}
+
+#road {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #2c3e50;
+    border-left: 10px dashed #fff;
+    border-right: 10px dashed #fff;
+}
+
+/* خطوط سفید متحرک وسط جاده */
+.road-line {
+    position: absolute;
+    width: 6px;
+    height: 50px;
+    background: #ffffff;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* استایل ماشین بازیکن */
+#player {
+    position: absolute;
+    width: 46px;
+    height: 82px;
+    background: #e74c3c;
+    bottom: 130px;
+    left: calc(50% - 23px);
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+    z-index: 5;
+    transition: background 0.1s ease;
+}
+
+/* شیشه و چراغ‌های ماشین */
+.glass {
+    position: absolute;
+    width: 36px;
+    height: 18px;
+    background: #2c3e50;
+    top: 22px;
+    left: 5px;
+    border-radius: 4px;
+}
+
+.light {
+    position: absolute;
+    width: 8px;
+    height: 6px;
+    background: #f1c40f;
+    top: 2px;
+    border-radius: 2px;
+    box-shadow: 0 -8px 12px #f1c40f;
+}
+.l-left { left: 6px; }
+.l-right { right: 6px; }
+
+/* ماشین‌های مانع (دشمن) */
+.enemy {
+    position: absolute;
+    width: 46px;
+    height: 82px;
+    background: #2980b9;
+    border-radius: 8px;
+    box-shadow: 0 5px 12px rgba(0,0,0,0.3);
+}
+
+/* انیمیشن و استایل سکه‌های طلایی متحرک */
+.coin {
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    background: radial-gradient(circle, #fff 5%, #f1c40f 60%, #d35400 100%);
+    border-radius: 50%;
+    box-shadow: 0 0 12px #f1c40f;
+    animation: coinSpin 0.7s linear infinite;
+}
+
+@keyframes coinSpin {
+    0% { transform: scaleX(1); }
+    50% { transform: scaleX(0.2); }
+    100% { transform: scaleX(1); }
+}
+
+/* سیستم کنترل لمسی پایین صفحه */
+#touch-controls {
+    position: absolute;
+    bottom: 25px;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    padding: 0 10px;
+    z-index: 10;
+}
+
+#touch-controls button {
+    width: 85px;
+    height: 85px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.7);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 32px;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+#touch-controls button:active {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+/* هد بالای صفحه */
+#hud {
+    position: absolute;
+    top: 12px; left: 12px; right: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.75);
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 14px;
+    z-index: 10;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+#hud button {
+    background: #34495e;
+    color: white;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+/* استایل صفحات پاپ‌آپ و اورلی */
+.overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(11, 11, 11, 0.9);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 20;
+}
+
+.hidden { display: none !important; }
+
+.menu-btn {
+    padding: 12px 40px;
+    margin: 10px;
+    font-size: 18px;
+    background: #2ecc71;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    box-shadow: 0 5px 15px rgba(46,204,113,0.4);
+}
+
+.shop-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 85%;
+    background: #1c2833;
+    padding: 12px 20px;
+    margin: 8px 0;
+    border-radius: 8px;
+    border: 1px solid #34495e;
+}
+
+.shop-btn {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 4px;
+}
+
+/* افکت انفجار شدید ماشین */
+.explosion-effect {
+    background: radial-gradient(circle, #fff, #ff9800, #e74c3c, transparent) !important;
+    transform: scale(2.2);
+    border-radius: 50% !important;
+    box-shadow: 0 0 35px #e74c3c;
+}
