@@ -40,10 +40,11 @@ jobs:
     - name: Add Android Platform
       run: npx cap add android
 
-    # گام کلیدی: کپی کردن فایل تنظیمات رفع باگ به پوشه اندروید پروژه
-    - name: Apply Gradle Fix
+    # گام طلایی: تزریق تنظیمات دور زدن تاییدیه پکیج‌ها مستقیماً بعد از ساخته شدن پوشه اندروید
+    - name: Force Disable Gradle Verification
       run: |
-        cp gradle.properties android/
+        echo "org.gradle.dependency.verification=off" >> android/gradle.properties
+        echo "org.gradle.daemon=false" >> android/gradle.properties
 
     - name: Set up JDK 17
       uses: actions/setup-java@v4
@@ -58,8 +59,8 @@ jobs:
       run: |
         cd android
         ./gradlew clean
-        ./gradlew assembleDebug --no-build-cache
-
+        ./gradlew assembleDebug --no-build-cache --no-daemon
+        
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
