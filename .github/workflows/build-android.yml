@@ -17,7 +17,6 @@ jobs:
       with:
         node-version: 18
 
-    # این بخش با هوشمندی فایل‌ها را در هر فولدری که باشند پیدا کرده و ساختار را منظم می‌کند
     - name: Prepare Web Assets Folder
       run: |
         mkdir -p www
@@ -26,9 +25,8 @@ jobs:
         find . -name "game.js" -exec cp {} www/ \;
         find . -name "storage.js" -exec cp {} www/ \;
         
-        # بررسی وجود فایل اصلی برای جلوگیری از ارورهای بعدی
         if [ ! -f www/index.html ]; then
-          echo "خطا: فایل index.html در هیچ پوشه‌ای پیدا نشد! لطفاً نام فایل را در گیت‌هاب چک کنید."
+          echo "Error: index.html not found!"
           exit 1
         fi
 
@@ -41,18 +39,22 @@ jobs:
     - name: Add Android Platform
       run: npx cap add android
 
-    - name: Set up JDK 17
+    # آپدیت به نسخه ۲۱ جاوا برای حل ارور کتابخانه bcprov
+    - name: Set up JDK 21
       uses: actions/setup-java@v4
       with:
         distribution: 'zulu'
-        java-version: '17'
+        java-version: '21'
 
     - name: Sync Web assets to Android
       run: npx cap sync
 
+    # تمیز کردن کش و بیلد نهایی
     - name: Build Android APK
       run: |
-        cd android && ./gradlew assembleDebug
+        cd android
+        ./gradlew clean
+        ./gradlew assembleDebug
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
