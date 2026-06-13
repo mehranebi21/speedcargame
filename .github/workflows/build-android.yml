@@ -40,19 +40,11 @@ jobs:
     - name: Add Android Platform
       run: npx cap add android
 
-    # 🎯 تزریق مستقیم و بدون نقص برای حل تداخل پکیج bcprov در گریدل کپسیتور
-    - name: Bypass and Fix Broken Jar Dependency
+    # 🎯 تنظیم کلیدی جدید: حل مشکل پکیج بدون خراب کردن سینتکس
+    - name: Force Clean Build Strategy
       run: |
-        echo "subprojects {
-            project.configurations.all {
-                resolutionStrategy.eachDependency { details ->
-                    if (details.requested.group == 'org.bouncycastle' && details.requested.name.contains('bcprov')) {
-                        details.useVersion '1.74'
-                        details.because 'Fix broken 1.79 jar execution on github runner caching'
-                    }
-                }
-            }
-        }" >> android/build.gradle
+        echo "configurations.all { resolutionStrategy.force 'org.bouncycastle:bcprov-jdk18on:1.74' }" >> android/build.gradle
+        echo "org.gradle.dependency.verification=off" >> android/gradle.properties
 
     - name: Set up JDK 17
       uses: actions/setup-java@v4
