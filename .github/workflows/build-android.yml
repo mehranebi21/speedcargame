@@ -17,6 +17,7 @@ jobs:
       with:
         node-version: 18
 
+    # این بخش پوشه assets را هم در صورت وجود به مسیر کامپایل منتقل می‌کند
     - name: Prepare Web Assets Folder
       run: |
         mkdir -p www
@@ -24,6 +25,15 @@ jobs:
         find . -name "style.css" -exec cp {} www/ \;
         find . -name "game.js" -exec cp {} www/ \;
         find . -name "storage.js" -exec cp {} www/ \;
+        
+        # انتقال ساختار پوشه assets به درون فولدر بیلد
+        if [ -d "assets" ]; then
+          cp -r assets www/
+        elif [ -d "www/assets" ]; then
+          echo "Assets folder already in place."
+        else
+          mkdir -p www/assets/images www/assets/sounds www/assets/fonts
+        fi
         
         if [ ! -f www/index.html ]; then
           echo "Error: index.html not found!"
@@ -39,7 +49,7 @@ jobs:
     - name: Add Android Platform
       run: npx cap add android
 
-    # آپدیت به نسخه ۲۱ جاوا برای حل ارور کتابخانه bcprov
+    # استفاده از نسخه پایدار ۲۱ جاوا
     - name: Set up JDK 21
       uses: actions/setup-java@v4
       with:
@@ -49,12 +59,12 @@ jobs:
     - name: Sync Web assets to Android
       run: npx cap sync
 
-    # تمیز کردن کش و بیلد نهایی
+    # دستورات ویژه برای شکستن قفل کش گریدل و متوقف کردن تداخلهای Jar
     - name: Build Android APK
       run: |
         cd android
-        ./gradlew clean
-        ./gradlew assembleDebug
+        ./gradlew --no-daemon clean
+        ./gradlew assembleDebug --no-build-cache --no-daemon
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
