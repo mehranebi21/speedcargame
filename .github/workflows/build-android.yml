@@ -17,11 +17,20 @@ jobs:
       with:
         node-version: 18
 
-    # این بخش فایل‌های بازی را سازماندهی می‌کند تا ارور webDir کاملاً برطرف شود
+    # این بخش با هوشمندی فایل‌ها را در هر فولدری که باشند پیدا کرده و ساختار را منظم می‌کند
     - name: Prepare Web Assets Folder
       run: |
-        mkdir www
-        cp index.html style.css game.js storage.js www/
+        mkdir -p www
+        find . -name "index.html" -exec cp {} www/ \;
+        find . -name "style.css" -exec cp {} www/ \;
+        find . -name "game.js" -exec cp {} www/ \;
+        find . -name "storage.js" -exec cp {} www/ \;
+        
+        # بررسی وجود فایل اصلی برای جلوگیری از ارورهای بعدی
+        if [ ! -f www/index.html ]; then
+          echo "خطا: فایل index.html در هیچ پوشه‌ای پیدا نشد! لطفاً نام فایل را در گیت‌هاب چک کنید."
+          exit 1
+        fi
 
     - name: Install Capacitor & Dependencies
       run: |
