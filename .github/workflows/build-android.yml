@@ -9,26 +9,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # ۱. آپدیت به نسخه ۴ برای دانلود کدها
     - name: Checkout Source Code
       uses: actions/checkout@v4
 
-    # ۲. آپدیت به نسخه ۴ برای راه‌اندازی Node.js
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
         node-version: 18
 
+    # در این بخش دستور ساخت بدون آپشن مزاحم اصلاح شد
     - name: Install Capacitor & Dependencies
       run: |
         npm init -y
         npm install @capacitor/core @capacitor/cli @capacitor/android
-        npx cap init "CarGame" "com.yourname.cargame" --web-dir=. --noprompt
+        npx cap init "CarGame" "com.yourname.cargame" --web-dir=.
 
     - name: Add Android Platform
       run: npx cap add android
 
-    # ۳. آپدیت به نسخه ۴ برای نصب جاوا ۱۷
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
@@ -42,7 +40,6 @@ jobs:
       run: |
         cd android && ./gradlew assembleDebug
 
-    # ۴. آپدیت حیاتی به نسخه ۴ جهت آپلود و دانلود فایل خروجی APK (حل مشکل ارور شما)
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
