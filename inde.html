@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>بازی ماشینی پیشرفته دو بعدی</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="road"></div>
+        <div id="player">
+            <div class="glass"></div>
+            <div class="light l-left"></div>
+            <div class="light l-right"></div>
+        </div>
+        
+        <div id="touch-controls">
+            <button id="btn-left">◀</button>
+            <button id="btn-right">▶</button>
+        </div>
+
+        <div id="hud">
+            <div>امتیاز: <span id="score-val">0</span></div>
+            <div>مرحله: <span id="level-val">1</span></div>
+            <div>سکه‌ها: <span id="coins-val">0</span></div>
+            <button id="btn-mute">صدا: روشن</button>
+            <button id="btn-pause-trigger">توقف</button>
+        </div>
+
+        <div id="start-menu" class="overlay">
+            <h1>مسابقه ماشینی</h1>
+            <p>بالاترین رکورد شما: <span id="high-score-val">0</span></p>
+            <button id="btn-start" class="menu-btn">شروع مسابقه</button>
+            <button id="btn-shop-trigger" class="menu-btn">فروشگاه پوسته</button>
+        </div>
+
+        <div id="pause-screen" class="overlay hidden">
+            <h1>بازی متوقف شد</h1>
+            <button id="btn-resume" class="menu-btn">ادامه بازی</button>
+        </div>
+
+        <div id="game-over-screen" class="overlay hidden">
+            <h1 class="burn-effect">انفجار! بازی تمام شد</h1>
+            <p>امتیاز کسب شده: <span id="final-score">0</span></p>
+            <button id="btn-restart" class="menu-btn">شروع مجدد</button>
+        </div>
+
+        <div id="shop-screen" class="overlay hidden">
+            <h1>فروشگاه ماشین‌ها</h1>
+            <p>سکه شما: <span id="shop-coins-val">0</span></p>
+            <div class="shop-item">
+                <span>ماشین مسابقه‌ای قرمز</span>
+                <button id="btn-select-red" class="shop-btn">انتخاب</button>
+            </div>
+            <div class="shop-item">
+                <span>ماشین اسپرت زرد (۵۰ سکه)</span>
+                <button id="btn-buy-yellow" class="shop-btn">خرید / انتخاب</button>
+            </div>
+            <button id="btn-close-shop" class="menu-btn">بازگشت به منو</button>
+        </div>
+    </div>
+
+    <script src="storage.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
