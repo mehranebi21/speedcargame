@@ -15,7 +15,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: 20 # ارتقا به نسخه ۲۰ برای هماهنگی کامل با کپسیتور جدید
+        node-version: 18
 
     - name: Prepare Web Assets Folder
       run: |
@@ -29,11 +29,10 @@ jobs:
           cp -r assets www/
         fi
 
-    # 🎯 مهاجرت به نسخه ۶ کپسیتور برای حذف کامل پکیج دردسرآفرین bcprov
-    - name: Install Latest Capacitor & Dependencies
+    - name: Install Capacitor & Dependencies
       run: |
         npm init -y
-        npm install @capacitor/core@latest @capacitor/cli@latest @capacitor/android@latest
+        npm install @capacitor/core @capacitor/cli @capacitor/android
 
     - name: Initialize Capacitor
       run: npx cap init "CarGame" "com.yourname.cargame" --web-dir=www
@@ -47,6 +46,26 @@ jobs:
         distribution: 'zulu'
         java-version: '17'
 
+    # 🎯 ترفند آفلاین: تزریق فایل آپلود شده‌ی تو به عنوان بالاترین اولویت گریدل
+    - name: Inject Offline Valid Jar
+      run: |
+        mkdir -p android/app/libs
+        if [ -f "bcprov-jdk18on-1.74.jar" ]; then
+          cp bcprov-jdk18on-1.74.jar android/app/libs/
+          echo "allprojects {
+              buildscript {
+                  dependencies {
+                      classpath files('app/libs/bcprov-jdk18on-1.74.jar')
+                  }
+              }
+              configurations.all {
+                  resolutionStrategy.force files('app/libs/bcprov-jdk18on-1.74.jar')
+              }
+          }" >> android/build.gradle
+        fi
+        echo "org.gradle.dependency.verification=off" >> android/gradle.properties
+        echo "org.gradle.daemon=false" >> android/gradle.properties
+
     - name: Sync Web assets to Android
       run: npx cap sync
 
@@ -54,7 +73,7 @@ jobs:
       run: |
         cd android
         ./gradlew clean
-        ./gradlew assembleDebug --no-daemon
+        ./gradlew assembleDebug --no-build-cache --no-daemon
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
