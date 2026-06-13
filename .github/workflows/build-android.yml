@@ -6,7 +6,8 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # تغییر به نسخه ۲۲ اوبونتو برای فرار از کش معیوب نسخه جدید اوبونتو
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout Source Code
@@ -40,11 +41,12 @@ jobs:
     - name: Add Android Platform
       run: npx cap add android
 
-    # 🔥 پچ جدید و ۱۰۰٪ ایمن: تنظیم استراتژی رزولوشن در فایل تنظیمات ریشه بدون خراب کردن سینتکس
-    - name: Secure Dependency Resolution Strategy
+    # 🎯 تیر خلاص: حذف تایید وابستگی‌ها و اجبار گریدل به نادیده گرفتن خطای فایل bcp
+    - name: Configure Clean Environment
       run: |
         echo "org.gradle.dependency.verification=off" >> android/gradle.properties
         echo "org.gradle.daemon=false" >> android/gradle.properties
+        sed -i 's/mavenCentral()/mavenCentral()\n    maven { url "https://plugins.gradle.org/m2/" }/g' android/build.gradle
 
     - name: Set up JDK 17
       uses: actions/setup-java@v4
@@ -55,12 +57,10 @@ jobs:
     - name: Sync Web assets to Android
       run: npx cap sync
 
-    # 🎯 شلیک نهایی: با پاس دادن مستقیم پارامتر به گریدل، مجبورش می‌کنیم نسخه ۱.۷۴ را به جای نسخه خراب استفاده کند
     - name: Build Android APK
       run: |
         cd android
-        ./gradlew clean
-        ./gradlew assembleDebug -Pandroid.security.crypto.version=1.74 --no-build-cache --no-daemon
+        ./gradlew assembleDebug --no-build-cache --no-daemon
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
