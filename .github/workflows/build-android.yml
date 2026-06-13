@@ -40,28 +40,18 @@ jobs:
     - name: Add Android Platform
       run: npx cap add android
 
-    # 🎯 بمب اتم بیلد: ساخت یک اسکریپت پیش‌فرض برای گریدل در بالاترین سطح رانر
-    - name: Setup Global Gradle Override
+    # 🎯 جراحی عمیق گریدل: حذف کامل ماژول bcprov از تمام لایه‌های بیلد کپسیتور
+    - name: Remove Malfunctioning Dependency Completely
       run: |
-        mkdir -p $HOME/.gradle
-        echo "org.gradle.dependency.verification=off" >> $HOME/.gradle/gradle.properties
-        echo "org.gradle.daemon=false" >> $HOME/.gradle/gradle.properties
+        echo "org.gradle.dependency.verification=off" >> android/gradle.properties
+        echo "org.gradle.daemon=false" >> android/gradle.properties
         
-        cat << 'EOF' > $HOME/.gradle/init.gradle
+        # تزریق دستور فیلتر کردن و حذف پکیج bcprov به محض ساخته شدن پروژه
+        cat << 'EOF' >> android/build.gradle
+        
         allprojects {
-            ext {
-                // اجبار کل سیستم به استفاده از نسخه امن و بدون باگ شبکه
-                forcedBouncyCastleVersion = "1.74"
-            }
             configurations.all {
-                resolutionStrategy {
-                    eachDependency { DependencyResolveDetails details ->
-                        if (details.requested.group == 'org.bouncycastle' && details.requested.name.contains('bcprov')) {
-                            details.useVersion forcedBouncyCastleVersion
-                            details.because "Force stable version globally before capacitor alters build files"
-                        }
-                    }
-                }
+                exclude group: 'org.bouncycastle', module: 'bcprov-jdk18on'
             }
         }
         EOF
